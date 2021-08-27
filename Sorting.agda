@@ -274,15 +274,6 @@ x ≥* (y ∷ ys) = y ≤ x × x ≥* ys
 ++-≥* {xs = []} xgesxs xgesys = xgesys
 ++-≥* {xs = z ∷ xs} (z≤x , x≥*xs) xgesys = z≤x , ++-≥* x≥*xs xgesys
 
-join-sorted : (x : ℕ) (l m : List ℕ)
-            → sorted l → sorted m
-            → x ≥* l → x ≤* m
-            → sorted (l ++ (x ∷ []) ++ m)
-join-sorted x [] m sl sm xgesl xlesm = xlesm , sm
-join-sorted x (y ∷ l) m (y≤*l , sl) sm (y≤x , x≥*l) xlesm =
-  let y≤*m = ≤*-trans y≤x xlesm
-   in ++-≤* y≤*l (y≤x , y≤*m) , join-sorted x l m sl sm x≥*l xlesm
-
 divide-lists-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
                                                   in x ≥* le × x ≤* gr
 divide-lists-compare x [] = tt , tt
@@ -344,6 +335,15 @@ quicksort-preserves-≥* x (y ∷ l) {suc n} {s≤s p} (y≤x , x≥*l)
       t2 : x ≥* sle
       t2 = quicksort-preserves-≥* x le {n} {≤-trans lenle p} xgesle
    in ++-≥* t2 t1
+
+join-sorted : (x : ℕ) (l m : List ℕ)
+            → sorted l → sorted m
+            → x ≥* l → x ≤* m
+            → sorted (l ++ (x ∷ []) ++ m)
+join-sorted x [] m sl sm xgesl xlesm = xlesm , sm
+join-sorted x (y ∷ l) m (y≤*l , sl) sm (y≤x , x≥*l) xlesm =
+  let y≤*m = ≤*-trans y≤x xlesm
+   in ++-≤* y≤*l (y≤x , y≤*m) , join-sorted x l m sl sm x≥*l xlesm
 
 quicksort-sorts : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → sorted (quicksort-fuel l n p)
 quicksort-sorts zero [] p = tt
