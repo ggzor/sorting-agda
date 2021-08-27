@@ -34,7 +34,63 @@ suc m ≤? suc n with m ≤? n
 ... | inj₁ mn = inj₁ (s≤s mn)
 ... | inj₂ nm = inj₂ (s≤s nm)
 
-open import Data.List hiding (head; merge; length)
+open import Data.Empty using (⊥)
+open import Data.Unit using (⊤; tt)
+open import Data.Product using (_×_; _,_)
+open import Data.List using (List; _∷_; [])
+
+{-
+   Less Than All Relation
+-}
+
+_≤*_ : (x : ℕ) → (l : List ℕ) → Set
+x ≤* [] = ⊤
+x ≤* (y ∷ l) = (x ≤ y) × (x ≤* l)
+
+example-≤* : 2 ≤* (3 ∷ 2 ∷ 5 ∷ [])
+example-≤* = s≤s (s≤s z≤n) , s≤s (s≤s z≤n) , s≤s (s≤s z≤n) , tt
+
+open import Relation.Nullary using (¬_)
+
+example-≰* : ¬ 3 ≤* (3 ∷ 2 ∷ 5 ∷ [])
+example-≰* (3≤3 , s≤s (s≤s ()) , _)
+
+sorted : (l : List ℕ) → Set
+sorted [] = ⊤
+sorted (x ∷ l) = x ≤* l × sorted l
+
+example1-sorted : sorted (1 ∷ 2 ∷ [])
+example1-sorted = (s≤s z≤n , tt) , tt , tt
+
+{-
+   Permutations
+-}
+
+data _~_ {A : Set} : List A → List A → Set where
+  ~-nil : [] ~ []
+  ~-drop : (x : A) { l l' : List A} → l ~ l' → (x ∷ l) ~ (x ∷ l')
+  ~-swap : (x y : A) (l : List A) → (x ∷ y ∷ l) ~ (y ∷ x ∷ l)
+  ~-trans : {l l' l'' : List A} → l ~ l' → l' ~ l'' → l ~ l''
+
+example-perm-1 : (3 ∷ 1 ∷ 2 ∷ []) ~ (1 ∷ 2 ∷ 3 ∷ [])
+example-perm-1 =
+  let p1 = ~-drop 1 (~-swap 3 2 [])
+      p2 = ~-swap 3 1 (2 ∷ [])
+   in ~-trans p2 p1
+
+~-refl : {A : Set} {l : List A} → l ~ l
+~-refl {_} {[]} = ~-nil
+~-refl {_} {x ∷ l} = ~-drop x ~-refl
+
+~-sym : {A : Set} {l l' : List A} → l ~ l' → l' ~ l
+~-sym ~-nil = ~-nil
+~-sym (~-drop x l~l') = ~-drop x (~-sym l~l')
+~-sym (~-swap x y l) = ~-swap y x l
+~-sym (~-trans l~l'' l''~l) = ~-trans (~-sym l''~l) (~-sym l~l'')
+
+{-
+   Insertion sort
+-}
 
 insert : (x : ℕ) → (l : List ℕ) → List ℕ
 insert x [] = x ∷ []
@@ -48,27 +104,6 @@ sort (x ∷ l) = insert x (sort l)
 
 example1 : List ℕ
 example1 = sort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
-
-open import Data.Empty using (⊥)
-open import Data.Unit using (⊤; tt)
-open import Data.Product using (_×_; _,_)
-
-_≤*_ : (x : ℕ) → (l : List ℕ) → Set
-x ≤* [] = ⊤
-x ≤* (y ∷ l) = (x ≤ y) × (x ≤* l)
-
-sorted : (l : List ℕ) → Set
-sorted [] = ⊤
-sorted (x ∷ l) =  x ≤* l × sorted l
-
-example1-sorted : sorted (1 ∷ 2 ∷ [])
-example1-sorted = (s≤s z≤n , tt) , tt , tt
-
--- example2-sorted : sorted example1
--- example2-sorted = {!!}
-
--- example3-non-sorted : sorted (4 ∷ 1 ∷ [])
--- example3-non-sorted = {!!}
 
 ≤*-insert : (x y : ℕ) (l : List ℕ) → x ≤ y → x ≤* l → x ≤* insert y l
 ≤*-insert x y [] x≤y x≤*l = x≤y , tt
@@ -90,30 +125,6 @@ sort-sorts : ∀ (l : List ℕ) → sorted (sort l)
 sort-sorts [] = tt
 sort-sorts (x ∷ l) = insert-sorting x (sort l) (sort-sorts l)
 
-no-sort : List ℕ → List ℕ
-no-sort _ = []
-
-no-sort-sorts : ∀ (l : List ℕ) → sorted (no-sort l)
-no-sort-sorts l = tt
-
--- Permutations
-
-data _~_ {A : Set} : List A → List A → Set where
-  ~-nil : [] ~ []
-  ~-drop : (x : A) { l l' : List A} → l ~ l' → (x ∷ l) ~ (x ∷ l')
-  ~-swap : (x y : A) (l : List A) → (x ∷ y ∷ l) ~ (y ∷ x ∷ l)
-  ~-trans : {l l' l'' : List A} → l ~ l' → l' ~ l'' → l ~ l''
-
-~-refl : {A : Set} {l : List A} → l ~ l
-~-refl {_} {[]} = ~-nil
-~-refl {_} {x ∷ l} = ~-drop x ~-refl
-
-~-sym : {A : Set} {l l' : List A} → l ~ l' → l' ~ l
-~-sym ~-nil = ~-nil
-~-sym (~-drop x l~l') = ~-drop x (~-sym l~l')
-~-sym (~-swap x y l) = ~-swap y x l
-~-sym (~-trans l~l'' l''~l) = ~-trans (~-sym l''~l) (~-sym l~l'')
-
 insert-~ : (x : ℕ) (l : List ℕ) → (x ∷ l) ~ (insert x l)
 insert-~ x [] = ~-drop x ~-nil
 insert-~ x (y ∷ l) with x ≤? y
@@ -131,7 +142,27 @@ sort-~ : (l : List ℕ) → l ~ (sort l)
 sort-~ [] = ~-nil
 sort-~ (x ∷ l) = ~-trans (~-drop x (sort-~ l)) (insert-~ x (sort l))
 
--- Merge sort
+insert-sort-correct : (l : List ℕ) → sorted (sort l) × l ~ sort l
+insert-sort-correct l = sort-sorts l , sort-~ l
+
+{-
+   No sort
+-}
+
+no-sort : List ℕ → List ℕ
+no-sort [] = []
+no-sort (_ ∷ _) = []
+
+no-sort-sorts : ∀ (l : List ℕ) → sorted (no-sort l)
+no-sort-sorts [] = tt
+no-sort-sorts (_ ∷ _) = tt
+
+{-
+   Merge sort
+-}
+
+open import Data.List using (_++_)
+
 split : {A : Set} → List A → List A × List A
 split [] = [] , []
 split (x ∷ []) = x ∷ [] , []
@@ -203,6 +234,15 @@ divide-lists x [] = [] , []
 divide-lists x (y ∷ l) with divide-lists x l | y ≤? x
 ... | l , g | inj₁ y≤x = (y ∷ l) , g
 ... | l , g | inj₂ x≤y = l , (y ∷ g)
+
+-- {-# TERMINATING #-}
+-- quicksort' : List ℕ → List ℕ
+-- quicksort' [] = []
+-- quicksort' (x ∷ l) =
+--   let le , gr = divide-lists x l
+--   in quicksort' le ++ (x ∷ []) ++ quicksort' gr
+
+-- example-quicksort' = quicksort' (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 divide-lists-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
                                                in length le ≤ length l × length gr ≤ length l
