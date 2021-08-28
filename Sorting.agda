@@ -119,7 +119,7 @@ insert-sorting : (x : ℕ) → (l : List ℕ) → sorted l → sorted (insert x 
 insert-sorting x [] sl = tt , tt
 insert-sorting x (y ∷ l) (y≤*l , sl) with x ≤? y
 ... | inj₁ x≤y = (x≤y , ≤*-trans x≤y y≤*l) , y≤*l , sl
-... | inj₂ y≤x = ≤*-insert y x l y≤x y≤*l , insert-sorting x l sl 
+... | inj₂ y≤x = ≤*-insert y x l y≤x y≤*l , insert-sorting x l sl
 
 sort-sorts : ∀ (l : List ℕ) → sorted (sort l)
 sort-sorts [] = tt
@@ -227,7 +227,7 @@ test-merge = mergesort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 --
 -- QUICKSORT
--- 
+--
 
 divide-lists : ℕ → List ℕ → List ℕ × List ℕ
 divide-lists x [] = [] , []
@@ -266,13 +266,13 @@ _≥*_ : ℕ → List ℕ → Set
 x ≥* [] = ⊤
 x ≥* (y ∷ ys) = y ≤ x × x ≥* ys
 
-++-≤* : {x : ℕ} {xs ys : List ℕ} → x ≤* xs → x ≤* ys → x ≤* (xs ++ ys)
-++-≤* {xs = []} xlesxs xlesys = xlesys
-++-≤* {xs = z ∷ xs} (x≤z , x≤*xs) xlesys = x≤z , ++-≤* x≤*xs xlesys
+≤*-++ : {x : ℕ} {xs ys : List ℕ} → x ≤* xs → x ≤* ys → x ≤* (xs ++ ys)
+≤*-++ {xs = []} x≤*xs x≤*ys = x≤*ys
+≤*-++ {xs = z ∷ xs} (x≤z , x≤*xs) x≤*ys = x≤z , ≤*-++ x≤*xs x≤*ys
 
-++-≥* : {x : ℕ} {xs ys : List ℕ} → x ≥* xs → x ≥* ys → x ≥* (xs ++ ys)
-++-≥* {xs = []} xgesxs xgesys = xgesys
-++-≥* {xs = z ∷ xs} (z≤x , x≥*xs) xgesys = z≤x , ++-≥* x≥*xs xgesys
+≥*-++ : {x : ℕ} {xs ys : List ℕ} → x ≥* xs → x ≥* ys → x ≥* (xs ++ ys)
+≥*-++ {xs = []} x≤*xs x≤*ys = x≤*ys
+≥*-++ {xs = z ∷ xs} (z≤x , x≥*xs) x≤*ys = z≤x , ≥*-++ x≥*xs x≤*ys
 
 divide-lists-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
                                                   in x ≥* le × x ≤* gr
@@ -319,7 +319,7 @@ quicksort-preserves-≤* x (y ∷ l) {suc n} {s≤s p} (x≤y , x≤*l)
       t1 = x≤y , (≤*-trans x≤y abc)
       t2 : x ≤* sle
       t2 = quicksort-preserves-≤* x le {n} {≤-trans lenle p} xlesle
-   in ++-≤* t2 t1
+   in ≤*-++ t2 t1
 
 quicksort-preserves-≥* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≥* l → x ≥* quicksort-fuel l n p
 quicksort-preserves-≥* x [] xlesl = tt
@@ -334,7 +334,7 @@ quicksort-preserves-≥* x (y ∷ l) {suc n} {s≤s p} (y≤x , x≥*l)
       t1 = y≤x , (quicksort-preserves-≥* x gr {n} {≤-trans lengr p} xgesgr)
       t2 : x ≥* sle
       t2 = quicksort-preserves-≥* x le {n} {≤-trans lenle p} xgesle
-   in ++-≥* t2 t1
+   in ≥*-++ t2 t1
 
 join-sorted : (x : ℕ) (l m : List ℕ)
             → sorted l → sorted m
@@ -343,7 +343,7 @@ join-sorted : (x : ℕ) (l m : List ℕ)
 join-sorted x [] m sl sm xgesl xlesm = xlesm , sm
 join-sorted x (y ∷ l) m (y≤*l , sl) sm (y≤x , x≥*l) xlesm =
   let y≤*m = ≤*-trans y≤x xlesm
-   in ++-≤* y≤*l (y≤x , y≤*m) , join-sorted x l m sl sm x≥*l xlesm
+   in ≤*-++ y≤*l (y≤x , y≤*m) , join-sorted x l m sl sm x≥*l xlesm
 
 quicksort-sorts : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → sorted (quicksort-fuel l n p)
 quicksort-sorts zero [] p = tt
