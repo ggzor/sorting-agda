@@ -275,35 +275,41 @@ x ≥* (y ∷ ys) = y ≤ x × x ≥* ys
 ≥*-++ {xs = z ∷ xs} (z≤x , x≥*xs) x≤*ys = z≤x , ≥*-++ x≥*xs x≤*ys
 
 divide-lists-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
-                                                  in x ≥* le × x ≤* gr
+                                                 in x ≥* le × x ≤* gr
 divide-lists-compare x [] = tt , tt
-divide-lists-compare x (y ∷ l) with divide-lists x l | divide-lists-compare x l | y ≤? x
-... | le , gr | x≥*le , x≤*gr | inj₁ y≤x = (y≤x , x≥*le) , x≤*gr
-... | le , gr | x≥*le , x≤*gr | inj₂ x≤y = x≥*le , (x≤y , x≤*gr)
+divide-lists-compare x (y ∷ l) with y ≤? x
+... | inj₁ y≤x =
+  let x≥*le , x≤*gr = divide-lists-compare x l
+   in (y≤x , x≥*le) , x≤*gr
+... | inj₂ x≤y =
+  let x≥*le , x≤*gr = divide-lists-compare x l
+   in x≥*le , (x≤y , x≤*gr)
 
-divide-lists-preserves-≤* : (x : ℕ) {y : ℕ} (l : List ℕ)
+divide-lists-preserves-≤* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → x ≤* l
                           → let le , gr = divide-lists y l
                              in x ≤* le × x ≤* gr
-divide-lists-preserves-≤* x {y} []      xlesl = tt , tt
-divide-lists-preserves-≤* x {y} (z ∷ l) (x≤z , xlesl) with z ≤? y
-... | inj₁ _ =
-  let xlesle , xlesgr = divide-lists-preserves-≤* x {y} l xlesl
-   in (x≤z , xlesle) , xlesgr
-... | inj₂ _ =
-  let xlesle , xlesgr = divide-lists-preserves-≤* x {y} l xlesl
-    in xlesle , (x≤z , xlesgr)
+divide-lists-preserves-≤* y {x} {[]}    x≤*l = tt , tt
+divide-lists-preserves-≤* y {x} {z ∷ l} (x≤z , x≤*l) with z ≤? y
+... | inj₁ z≤y =
+  let x≤*le , x≤*gr = divide-lists-preserves-≤* y x≤*l
+   in (x≤z , x≤*le) , x≤*gr
+... | inj₂ y≤z =
+  let x≤*le , x≤*gr = divide-lists-preserves-≤* y x≤*l
+   in x≤*le , (x≤z , x≤*gr)
 
-divide-lists-preserves-≥* : (x : ℕ) {y : ℕ} (l : List ℕ) → x ≥* l → let le , gr = divide-lists y l
-                                                                     in x ≥* le × x ≥* gr
-divide-lists-preserves-≥* x {y} [] xgesl = tt , tt
-divide-lists-preserves-≥* x {y} (z ∷ l) (z≤x , x≥*l) with z ≤? y
-... | inj₁ _ =
-   let xgesle , xgesgr = divide-lists-preserves-≥* x {y} l x≥*l
-    in (z≤x , xgesle) , xgesgr
-... | inj₂ _ =
-   let xgesle , xgesgr = divide-lists-preserves-≥* x {y} l x≥*l
-    in xgesle , (z≤x , xgesgr)
+divide-lists-preserves-≥* : (y : ℕ) {x : ℕ} {l : List ℕ}
+                          → x ≥* l
+                          → let le , gr = divide-lists y l
+                             in x ≥* le × x ≥* gr
+divide-lists-preserves-≥* y {x} {[]}    x≥*l = tt , tt
+divide-lists-preserves-≥* y {x} {z ∷ l} (z≤x , x≥*l) with z ≤? y
+... | inj₁ z≤y =
+   let x≥*le , x≥*gr = divide-lists-preserves-≥* y x≥*l
+    in (z≤x , x≥*le) , x≥*gr
+... | inj₂ y≤z =
+   let x≥*le , x≥*gr = divide-lists-preserves-≥* y x≥*l
+    in x≥*le , (z≤x , x≥*gr)
 
 quicksort-preserves-≤* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≤* l → x ≤* quicksort-fuel l n p
 quicksort-preserves-≤* x [] xlesl = tt
@@ -311,7 +317,7 @@ quicksort-preserves-≤* x (y ∷ l) {suc n} {s≤s p} (x≤y , x≤*l)
   with divide-lists-less y l | divide-lists-compare y l
 ... | lenle , lengr | fst , ylesgr =
   let le , gr = divide-lists y l
-      xlesle , xlesgr = divide-lists-preserves-≤* x {y} l x≤*l
+      xlesle , xlesgr = divide-lists-preserves-≤* y x≤*l
       sle = quicksort-fuel le n (≤-trans lenle p)
       sgr = quicksort-fuel gr n (≤-trans lengr p)
       abc = quicksort-preserves-≤* y gr {n} {≤-trans lengr p} ylesgr
@@ -327,7 +333,7 @@ quicksort-preserves-≥* x (y ∷ l) {suc n} {s≤s p} (y≤x , x≥*l)
   with divide-lists-less y l | divide-lists-compare y l
 ... | lenle , lengr | y≥*le , y≤*gr =
   let le , gr = divide-lists y l
-      xgesle , xgesgr = divide-lists-preserves-≥* x {y} l x≥*l
+      xgesle , xgesgr = divide-lists-preserves-≥* y x≥*l
       sle = quicksort-fuel le n (≤-trans lenle p)
       sgr = quicksort-fuel gr n (≤-trans lengr p)
       t1 : x ≥* (y ∷ sgr)
