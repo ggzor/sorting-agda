@@ -229,9 +229,9 @@ test-merge = mergesort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 -- QUICKSORT
 --
 
-divide-lists : ℕ → List ℕ → List ℕ × List ℕ
-divide-lists x [] = [] , []
-divide-lists x (y ∷ l) with divide-lists x l | y ≤? x
+divide-list : ℕ → List ℕ → List ℕ × List ℕ
+divide-list x [] = [] , []
+divide-list x (y ∷ l) with divide-list x l | y ≤? x
 ... | l , g | inj₁ y≤x = (y ∷ l) , g
 ... | l , g | inj₂ x≤y = l , (y ∷ g)
 
@@ -239,22 +239,22 @@ divide-lists x (y ∷ l) with divide-lists x l | y ≤? x
 -- quicksort' : List ℕ → List ℕ
 -- quicksort' [] = []
 -- quicksort' (x ∷ l) =
---   let le , gr = divide-lists x l
+--   let le , gr = divide-list x l
 --   in quicksort' le ++ (x ∷ []) ++ quicksort' gr
 
 -- example-quicksort' = quicksort' (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
-divide-lists-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
-                                               in length le ≤ length l × length gr ≤ length l
-divide-lists-less _ [] = z≤n , z≤n
-divide-lists-less x (y ∷ l) with divide-lists-less x l | y ≤? x
+divide-list-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
+                                             in length le ≤ length l × length gr ≤ length l
+divide-list-less _ [] = z≤n , z≤n
+divide-list-less x (y ∷ l) with divide-list-less x l | y ≤? x
 ... | p1 , p2 | inj₁ y≤x = s≤s p1 , ≤-sucᴿ p2
 ... | p1 , p2 | inj₂ x≤y = (≤-sucᴿ p1) , (s≤s p2)
 
 quicksort-fuel : (l : List ℕ) → (n : ℕ) → (length l ≤ n) → List ℕ
 quicksort-fuel [] n p = []
-quicksort-fuel (x ∷ l) (suc n) (s≤s p) with divide-lists-less x l
-... | le≤l , gr≤l = let le , gr = divide-lists x l
+quicksort-fuel (x ∷ l) (suc n) (s≤s p) with divide-list-less x l
+... | le≤l , gr≤l = let le , gr = divide-list x l
                     in     (quicksort-fuel le n (≤-trans le≤l p))
                         ++ (x ∷ [])
                         ++ (quicksort-fuel gr n (≤-trans gr≤l p))
@@ -274,50 +274,50 @@ x ≥* (y ∷ ys) = y ≤ x × x ≥* ys
 ≥*-++ {xs = []} x≤*xs x≤*ys = x≤*ys
 ≥*-++ {xs = z ∷ xs} (z≤x , x≥*xs) x≤*ys = z≤x , ≥*-++ x≥*xs x≤*ys
 
-divide-lists-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-lists x l
-                                                 in x ≥* le × x ≤* gr
-divide-lists-compare x [] = tt , tt
-divide-lists-compare x (y ∷ l) with y ≤? x
+divide-list-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
+                                                in x ≥* le × x ≤* gr
+divide-list-compare x [] = tt , tt
+divide-list-compare x (y ∷ l) with y ≤? x
 ... | inj₁ y≤x =
-  let x≥*le , x≤*gr = divide-lists-compare x l
+  let x≥*le , x≤*gr = divide-list-compare x l
    in (y≤x , x≥*le) , x≤*gr
 ... | inj₂ x≤y =
-  let x≥*le , x≤*gr = divide-lists-compare x l
+  let x≥*le , x≤*gr = divide-list-compare x l
    in x≥*le , (x≤y , x≤*gr)
 
-divide-lists-preserves-≤* : (y : ℕ) {x : ℕ} {l : List ℕ}
+divide-list-preserves-≤* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → x ≤* l
-                          → let le , gr = divide-lists y l
+                          → let le , gr = divide-list y l
                              in x ≤* le × x ≤* gr
-divide-lists-preserves-≤* y {x} {[]}    x≤*l = tt , tt
-divide-lists-preserves-≤* y {x} {z ∷ l} (x≤z , x≤*l) with z ≤? y
+divide-list-preserves-≤* y {x} {[]}    x≤*l = tt , tt
+divide-list-preserves-≤* y {x} {z ∷ l} (x≤z , x≤*l) with z ≤? y
 ... | inj₁ z≤y =
-  let x≤*le , x≤*gr = divide-lists-preserves-≤* y x≤*l
+  let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
    in (x≤z , x≤*le) , x≤*gr
 ... | inj₂ y≤z =
-  let x≤*le , x≤*gr = divide-lists-preserves-≤* y x≤*l
+  let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
    in x≤*le , (x≤z , x≤*gr)
 
-divide-lists-preserves-≥* : (y : ℕ) {x : ℕ} {l : List ℕ}
+divide-list-preserves-≥* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → x ≥* l
-                          → let le , gr = divide-lists y l
+                          → let le , gr = divide-list y l
                              in x ≥* le × x ≥* gr
-divide-lists-preserves-≥* y {x} {[]}    x≥*l = tt , tt
-divide-lists-preserves-≥* y {x} {z ∷ l} (z≤x , x≥*l) with z ≤? y
+divide-list-preserves-≥* y {x} {[]}    x≥*l = tt , tt
+divide-list-preserves-≥* y {x} {z ∷ l} (z≤x , x≥*l) with z ≤? y
 ... | inj₁ z≤y =
-   let x≥*le , x≥*gr = divide-lists-preserves-≥* y x≥*l
+   let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
     in (z≤x , x≥*le) , x≥*gr
 ... | inj₂ y≤z =
-   let x≥*le , x≥*gr = divide-lists-preserves-≥* y x≥*l
+   let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
     in x≥*le , (z≤x , x≥*gr)
 
 quicksort-preserves-≤* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≤* l → x ≤* quicksort-fuel l n p
 quicksort-preserves-≤* x [] xlesl = tt
 quicksort-preserves-≤* x (y ∷ l) {suc n} {s≤s p} (x≤y , x≤*l)
-  with divide-lists-less y l | divide-lists-compare y l
+  with divide-list-less y l | divide-list-compare y l
 ... | lenle , lengr | fst , ylesgr =
-  let le , gr = divide-lists y l
-      xlesle , xlesgr = divide-lists-preserves-≤* y x≤*l
+  let le , gr = divide-list y l
+      xlesle , xlesgr = divide-list-preserves-≤* y x≤*l
       sle = quicksort-fuel le n (≤-trans lenle p)
       sgr = quicksort-fuel gr n (≤-trans lengr p)
       abc = quicksort-preserves-≤* y gr {n} {≤-trans lengr p} ylesgr
@@ -330,10 +330,10 @@ quicksort-preserves-≤* x (y ∷ l) {suc n} {s≤s p} (x≤y , x≤*l)
 quicksort-preserves-≥* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≥* l → x ≥* quicksort-fuel l n p
 quicksort-preserves-≥* x [] xlesl = tt
 quicksort-preserves-≥* x (y ∷ l) {suc n} {s≤s p} (y≤x , x≥*l)
-  with divide-lists-less y l | divide-lists-compare y l
+  with divide-list-less y l | divide-list-compare y l
 ... | lenle , lengr | y≥*le , y≤*gr =
-  let le , gr = divide-lists y l
-      xgesle , xgesgr = divide-lists-preserves-≥* y x≥*l
+  let le , gr = divide-list y l
+      xgesle , xgesgr = divide-list-preserves-≥* y x≥*l
       sle = quicksort-fuel le n (≤-trans lenle p)
       sgr = quicksort-fuel gr n (≤-trans lengr p)
       t1 : x ≥* (y ∷ sgr)
@@ -354,9 +354,9 @@ join-sorted x (y ∷ l) m (y≤*l , sl) sm (y≤x , x≥*l) xlesm =
 quicksort-sorts : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → sorted (quicksort-fuel l n p)
 quicksort-sorts zero [] p = tt
 quicksort-sorts (suc n) [] p = tt
-quicksort-sorts (suc n) (x ∷ l) (s≤s p) with divide-lists-less x l | divide-lists-compare x l
+quicksort-sorts (suc n) (x ∷ l) (s≤s p) with divide-list-less x l | divide-list-compare x l
 ... | p1 , p2 | xgesle , xlesgr =
-  let le , gr = divide-lists x l
+  let le , gr = divide-list x l
       le-sorted = quicksort-sorts n le (≤-trans p1 p)
       gr-sorted = quicksort-sorts n gr (≤-trans p2 p)
       les = quicksort-fuel le n (≤-trans p1 p)
@@ -410,13 +410,13 @@ open import Data.Product using (Σ)
       t2 = ~-trans recovln abc2
    in ~-++-insert {xs = z ∷ m} t2
 
-divide-lists-~ : (x : ℕ) (l : List ℕ) → let le , gr = divide-lists x l
+divide-list-~ : (x : ℕ) (l : List ℕ) → let le , gr = divide-list x l
                                           in l ~ (le ++ gr)
-divide-lists-~ x [] = ~-nil
-divide-lists-~ x (y ∷ l) with y ≤? x | divide-lists-~ x l
+divide-list-~ x [] = ~-nil
+divide-list-~ x (y ∷ l) with y ≤? x | divide-list-~ x l
 ... | inj₁ _ | p = ~-drop y p
 ... | inj₂ _ | p =
-  let le , gr = divide-lists x l
+  let le , gr = divide-list x l
       c1 = ++-comm~ {l} {le} p
       c2 = ~-drop y c1
       c3 = ++-comm~ {y ∷ l} {y ∷ gr} c2
@@ -441,14 +441,14 @@ divide-lists-~ x (y ∷ l) with y ≤? x | divide-lists-~ x l
 
 quicksort-~ : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → l ~ (quicksort-fuel l n p)
 quicksort-~ n [] p = ~-nil
-quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-lists-less x l
+quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-list-less x l
 ... | p1 , p2 =
-  let le , gr = divide-lists x l
+  let le , gr = divide-list x l
       le-permuted = quicksort-~ n le (≤-trans p1 p)
       gr-permuted = quicksort-~ n gr (≤-trans p2 p)
       abc = ~-drop x gr-permuted
       abc2 = ++-~ le-permuted abc
-      divl = ++-comm~ {l} {le} (divide-lists-~ x l)
+      divl = ++-comm~ {l} {le} (divide-list-~ x l)
       d2 = ~-drop x divl
       d3 = ++-comm~ {x ∷ l} {x ∷ gr} d2
       final : (x ∷ l) ~ (le ++ (x ∷ []) ++ gr)
