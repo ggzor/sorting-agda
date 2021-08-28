@@ -311,36 +311,30 @@ divide-list-preserves-≥* y {x} {z ∷ l} (z≤x , x≥*l) with z ≤? y
    let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
     in x≥*le , (z≤x , x≥*gr)
 
-quicksort-preserves-≤* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≤* l → x ≤* quicksort-fuel l n p
-quicksort-preserves-≤* x [] xlesl = tt
-quicksort-preserves-≤* x (y ∷ l) {suc n} {s≤s p} (x≤y , x≤*l)
-  with divide-list-less y l | divide-list-compare y l
-... | lenle , lengr | fst , ylesgr =
-  let le , gr = divide-list y l
-      xlesle , xlesgr = divide-list-preserves-≤* y x≤*l
-      sle = quicksort-fuel le n (≤-trans lenle p)
-      sgr = quicksort-fuel gr n (≤-trans lengr p)
-      abc = quicksort-preserves-≤* y gr {n} {≤-trans lengr p} ylesgr
-      t1 : x ≤* (y ∷ sgr)
-      t1 = x≤y , (≤*-trans x≤y abc)
-      t2 : x ≤* sle
-      t2 = quicksort-preserves-≤* x le {n} {≤-trans lenle p} xlesle
-   in ≤*-++ t2 t1
+quicksort-preserves-≤* : {x : ℕ} {l : List ℕ}
+                       → {n : ℕ} {p : length l ≤ n}
+                       → x ≤* l
+                       → x ≤* quicksort-fuel l n p
+quicksort-preserves-≤* {x} {[]} {n} {p} x≤*l = tt
+quicksort-preserves-≤* {x} {y ∷ l} {suc n} {s≤s p} (x≤y , x≤*l) with divide-list-less y l
+... | lenle , lengr =
+  let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
+      y≥*le , y≤*gr = divide-list-compare y l
+      x≤*qsort-le = quicksort-preserves-≤* x≤*le
+      x≤*qsort-gr = quicksort-preserves-≤* y≤*gr
+   in ≤*-++ x≤*qsort-le (x≤y , (≤*-trans x≤y x≤*qsort-gr))
 
-quicksort-preserves-≥* : (x : ℕ) (l : List ℕ) {n : ℕ} {p : length l ≤ n} → x ≥* l → x ≥* quicksort-fuel l n p
-quicksort-preserves-≥* x [] xlesl = tt
-quicksort-preserves-≥* x (y ∷ l) {suc n} {s≤s p} (y≤x , x≥*l)
-  with divide-list-less y l | divide-list-compare y l
-... | lenle , lengr | y≥*le , y≤*gr =
-  let le , gr = divide-list y l
-      xgesle , xgesgr = divide-list-preserves-≥* y x≥*l
-      sle = quicksort-fuel le n (≤-trans lenle p)
-      sgr = quicksort-fuel gr n (≤-trans lengr p)
-      t1 : x ≥* (y ∷ sgr)
-      t1 = y≤x , (quicksort-preserves-≥* x gr {n} {≤-trans lengr p} xgesgr)
-      t2 : x ≥* sle
-      t2 = quicksort-preserves-≥* x le {n} {≤-trans lenle p} xgesle
-   in ≥*-++ t2 t1
+quicksort-preserves-≥* : {x : ℕ} {l : List ℕ}
+                       → {n : ℕ} {p : length l ≤ n}
+                       → x ≥* l
+                       → x ≥* quicksort-fuel l n p
+quicksort-preserves-≥* {x} {[]} {n} {p} x≥*l = tt
+quicksort-preserves-≥* {x} {y ∷ l} {suc n} {s≤s p} (y≤x , x≥*l) with divide-list-less y l
+... | lenle , lengr =
+  let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
+      x≥*qsort-le = quicksort-preserves-≥* x≥*le
+      x≥*qsort-gr = quicksort-preserves-≥* x≥*gr
+   in ≥*-++ x≥*qsort-le (y≤x , x≥*qsort-gr)
 
 join-sorted : (x : ℕ) (l m : List ℕ)
             → sorted l → sorted m
@@ -362,8 +356,8 @@ quicksort-sorts (suc n) (x ∷ l) (s≤s p) with divide-list-less x l | divide-l
       les = quicksort-fuel le n (≤-trans p1 p)
       grs = quicksort-fuel gr n (≤-trans p2 p)
     in join-sorted x les grs le-sorted gr-sorted
-                     (quicksort-preserves-≥* x le xgesle)
-                     (quicksort-preserves-≤* x gr xlesgr)
+                     (quicksort-preserves-≥* xgesle)
+                     (quicksort-preserves-≤* xlesgr)
 
 quicksort-sorting : (l : List ℕ) → sorted (quicksort l)
 quicksort-sorting l = quicksort-sorts (length l) l (≤-refl (length l))
