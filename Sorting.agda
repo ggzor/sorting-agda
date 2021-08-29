@@ -319,10 +319,9 @@ quicksort-preserves-≤* {x} {[]} {n} {p} x≤*l = tt
 quicksort-preserves-≤* {x} {y ∷ l} {suc n} {s≤s p} (x≤y , x≤*l) with divide-list-less y l
 ... | lenle , lengr =
   let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
-      y≥*le , y≤*gr = divide-list-compare y l
       x≤*qsort-le = quicksort-preserves-≤* x≤*le
-      x≤*qsort-gr = quicksort-preserves-≤* y≤*gr
-   in ≤*-++ x≤*qsort-le (x≤y , (≤*-trans x≤y x≤*qsort-gr))
+      x≤*qsort-gr = quicksort-preserves-≤* x≤*gr
+   in ≤*-++ x≤*qsort-le (x≤y , x≤*qsort-gr)
 
 quicksort-preserves-≥* : {x : ℕ} {l : List ℕ}
                        → {n : ℕ} {p : length l ≤ n}
