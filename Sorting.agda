@@ -242,7 +242,7 @@ divide-list x (y ∷ l) with divide-list x l | y ≤? x
 --   let le , gr = divide-list x l
 --   in quicksort' le ++ (x ∷ []) ++ quicksort' gr
 
--- example-quicksort' = quicksort' (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
+-- quicksort-example' = quicksort' (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 divide-list-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
                                              in length le ≤ length l × length gr ≤ length l
@@ -261,6 +261,9 @@ quicksort-fuel (x ∷ l) (suc n) (s≤s p) with divide-list-less x l
 
 quicksort : List ℕ → List ℕ
 quicksort l = quicksort-fuel l (length l) (≤-refl (length l))
+
+quicksort-example1 : List ℕ
+quicksort-example1 = quicksort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 _≥*_ : ℕ → List ℕ → Set
 x ≥* [] = ⊤
@@ -289,8 +292,8 @@ divide-list-preserves-≤* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → x ≤* l
                           → let le , gr = divide-list y l
                              in x ≤* le × x ≤* gr
-divide-list-preserves-≤* y {x} {[]}    x≤*l = tt , tt
-divide-list-preserves-≤* y {x} {z ∷ l} (x≤z , x≤*l) with z ≤? y
+divide-list-preserves-≤* y {l = []}     x≤*l = tt , tt
+divide-list-preserves-≤* y {l = z ∷ l} (x≤z , x≤*l) with z ≤? y
 ... | inj₁ z≤y =
   let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
    in (x≤z , x≤*le) , x≤*gr
@@ -302,8 +305,8 @@ divide-list-preserves-≥* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → x ≥* l
                           → let le , gr = divide-list y l
                              in x ≥* le × x ≥* gr
-divide-list-preserves-≥* y {x} {[]}    x≥*l = tt , tt
-divide-list-preserves-≥* y {x} {z ∷ l} (z≤x , x≥*l) with z ≤? y
+divide-list-preserves-≥* y {l = []}    x≥*l = tt , tt
+divide-list-preserves-≥* y {l = z ∷ l} (z≤x , x≥*l) with z ≤? y
 ... | inj₁ z≤y =
    let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
     in (z≤x , x≥*le) , x≥*gr
@@ -335,34 +338,30 @@ quicksort-preserves-≥* {x} {y ∷ l} {suc n} {s≤s p} (y≤x , x≥*l) with d
       x≥*qsort-gr = quicksort-preserves-≥* x≥*gr
    in ≥*-++ x≥*qsort-le (y≤x , x≥*qsort-gr)
 
-join-sorted : (x : ℕ) (l m : List ℕ)
+join-sorted : {x : ℕ} {l m : List ℕ}
             → sorted l → sorted m
             → x ≥* l → x ≤* m
             → sorted (l ++ (x ∷ []) ++ m)
-join-sorted x [] m sl sm xgesl xlesm = xlesm , sm
-join-sorted x (y ∷ l) m (y≤*l , sl) sm (y≤x , x≥*l) xlesm =
-  let y≤*m = ≤*-trans y≤x xlesm
-   in ≤*-++ y≤*l (y≤x , y≤*m) , join-sorted x l m sl sm x≥*l xlesm
+join-sorted {l = []}    sl sm x≥*l x≤*m = x≤*m , sm
+join-sorted {l = y ∷ l} (y≤*l , sl) sm (y≤x , x≥*l) x≤*m =
+  ≤*-++ y≤*l (y≤x , (≤*-trans y≤x x≤*m)) , join-sorted sl sm x≥*l x≤*m
 
-quicksort-sorts : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → sorted (quicksort-fuel l n p)
-quicksort-sorts zero [] p = tt
-quicksort-sorts (suc n) [] p = tt
-quicksort-sorts (suc n) (x ∷ l) (s≤s p) with divide-list-less x l | divide-list-compare x l
-... | p1 , p2 | xgesle , xlesgr =
+quicksort-fuel-sorts : (l : List ℕ)
+                → {n : ℕ} {p : length l ≤ n}
+                → sorted (quicksort-fuel l n p)
+quicksort-fuel-sorts [] = tt
+quicksort-fuel-sorts (x ∷ l) {suc n} {s≤s p} with divide-list-less x l
+... | lenle , lengr =
   let le , gr = divide-list x l
-      le-sorted = quicksort-sorts n le (≤-trans p1 p)
-      gr-sorted = quicksort-sorts n gr (≤-trans p2 p)
-      les = quicksort-fuel le n (≤-trans p1 p)
-      grs = quicksort-fuel gr n (≤-trans p2 p)
-    in join-sorted x les grs le-sorted gr-sorted
-                     (quicksort-preserves-≥* xgesle)
-                     (quicksort-preserves-≤* xlesgr)
+      le-sorted = quicksort-fuel-sorts le
+      gr-sorted = quicksort-fuel-sorts gr
+      x≥*le , x≤*gr = divide-list-compare x l
+   in join-sorted le-sorted gr-sorted
+                  (quicksort-preserves-≥* x≥*le)
+                  (quicksort-preserves-≤* x≤*gr)
 
-quicksort-sorting : (l : List ℕ) → sorted (quicksort l)
-quicksort-sorting l = quicksort-sorts (length l) l (≤-refl (length l))
-
-test-quicksort : List ℕ
-test-quicksort = quicksort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
+quicksort-sorts : (l : List ℕ) → sorted (quicksort l)
+quicksort-sorts l = quicksort-fuel-sorts l
 
 open import Data.List.Properties using (++-identityʳ)
 
@@ -452,5 +451,5 @@ quicksort-permutes : (l : List ℕ) → l ~ (quicksort l)
 quicksort-permutes l = quicksort-~ (length l) l (≤-refl (length l))
 
 quicksort-is-correct : (l : List ℕ) → sorted (quicksort l) × l ~ (quicksort l)
-quicksort-is-correct l = quicksort-sorting l , quicksort-permutes l
+quicksort-is-correct l = quicksort-sorts l , quicksort-permutes l
 
