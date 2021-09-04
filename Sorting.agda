@@ -365,15 +365,17 @@ quicksort-sorts l = quicksort-fuel-sorts l
 
 open import Data.List.Properties using (++-identityʳ)
 
-open import Data.Product using (Σ)
+open import Data.Product using (Σ-syntax)
 
-++-~-cons : {l xs : List ℕ} {x : ℕ} → l ~ (x ∷ xs) → Σ (List ℕ) (λ l' → l' ~ xs × l ~ (x ∷ l'))
-++-~-cons {xs = []} {x = x} p1 = [] , (~-nil , p1)
-++-~-cons {xs = y ∷ xs} {x = x} p1 = (y ∷ xs) , (~-refl , p1)
+~-uncons : {l xs : List ℕ} {x : ℕ}
+         → l ~ (x ∷ xs)
+         → Σ[ l' ∈ List ℕ ] l' ~ xs × l ~ (x ∷ l')
+~-uncons {xs = []}     l~x∷xs = [] , (~-nil , l~x∷xs)
+~-uncons {xs = y ∷ xs} l~x∷xs = (y ∷ xs) , (~-refl , l~x∷xs)
 
 ~-++-one : {y : ℕ} {l xs ys : List ℕ} → l ~ (xs ++ y ∷ ys) → l ~ (y ∷ xs ++ ys)
 ~-++-one {xs = []} p1 = p1
-~-++-one {y} {xs = x ∷ xs} {ys = ys} p1 with ++-~-cons p1
+~-++-one {y} {xs = x ∷ xs} {ys = ys} p1 with ~-uncons p1
 ... | ln , ln-perm , recovln =
   let abc1 = ~-drop x (~-++-one ln-perm)
       t1 = ~-trans recovln abc1
@@ -382,7 +384,7 @@ open import Data.Product using (Σ)
 
 ~-++-insert : {y : ℕ} {l xs ys : List ℕ} → l ~ (y ∷ xs ++ ys) → l ~ (xs ++ y ∷ ys)
 ~-++-insert {xs = []} p1 = p1
-~-++-insert {y} {xs = x ∷ xs} {ys = ys} p1 with ++-~-cons (~-trans p1 (~-swap y x (xs ++ ys)))
+~-++-insert {y} {xs = x ∷ xs} {ys = ys} p1 with ~-uncons (~-trans p1 (~-swap y x (xs ++ ys)))
 ... | ln , ln-perm , recovln =
   let abc1 = ~-++-insert {xs = xs} ln-perm
       t1 = ~-drop x abc1
@@ -392,8 +394,8 @@ open import Data.Product using (Σ)
 ++-comm~ {l' = []} {m = []} ll'm = ll'm
 ++-comm~ {l' = []} {m = x ∷ m} ll'm rewrite ++-identityʳ (x ∷ m) = ll'm
 ++-comm~ {l' = x ∷ l'} {m = []} ll'm rewrite ++-identityʳ (x ∷ l') = ll'm
-++-comm~ {l} {y ∷ l'} {m = z ∷ m} ll'm with ++-~-cons ll'm
-... | ln , ln-perm , recovln with ++-~-cons (~-++-one ln-perm)
+++-comm~ {l} {y ∷ l'} {m = z ∷ m} ll'm with ~-uncons ll'm
+... | ln , ln-perm , recovln with ~-uncons (~-++-one ln-perm)
 ... | ln' , ln'-perm , recovln' =
   let p1 = ++-comm~ {ln'} {l'} {m} ln'-perm
       abc1 = ~-drop z p1
