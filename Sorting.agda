@@ -367,20 +367,6 @@ open import Data.List.Properties using (++-identityʳ)
 
 open import Data.Product using (Σ-syntax)
 
--- An uncons-free version
-++-~-∷-move-lr : {l xs ys : List ℕ} {y : ℕ}
-               → l ~ (y ∷ xs ++ ys)
-               → l ~ (xs ++ y ∷ ys)
-++-~-∷-move-lr {xs = []} p = p
-++-~-∷-move-lr {l} {xs = x ∷ xs} {ys} {y} p =
-  let ul : List ℕ
-      ul = y ∷ xs ++ ys
-      h-ind = ++-~-∷-move-lr {ul} {xs = xs} {ys} {y} (~-drop y ~-refl)
-      xh-ind = ~-drop x h-ind
-      recov-l : l ~ (x ∷ ul)
-      recov-l = ~-trans p (~-swap y x (xs ++ ys))
-   in ~-trans recov-l xh-ind
-
 ~-uncons : {l xs : List ℕ} {x : ℕ}
          → l ~ (x ∷ xs)
          → Σ[ l' ∈ List ℕ ] l' ~ xs × l ~ (x ∷ l')
@@ -397,6 +383,22 @@ open import Data.Product using (Σ-syntax)
       xh-ind = ~-drop x h-ind
       swap-xy = ~-swap x y (xs ++ ys)
    in ~-trans (~-trans recov-l xh-ind) swap-xy
+
+-- An uncons-free version can be found in the previous commit
+-- That version is more rewritable, the current version is the
+-- refactored one.
+
+++-~-∷-move-lr : {l xs ys : List ℕ} {y : ℕ}
+               → l ~ (y ∷ xs ++ ys)
+               → l ~ (xs ++ y ∷ ys)
+++-~-∷-move-lr {xs = []} p = p
+++-~-∷-move-lr {l} {xs = x ∷ xs} {ys} {y} p
+                with ~-uncons {l} {y ∷ xs ++ ys} {x}
+                              (~-trans p (~-swap y x (xs ++ ys)))
+... | ul , ul-perm , recov-l =
+  let h-ind = ++-~-∷-move-lr {ul} {xs} {ys} {y} ul-perm
+      xh-ind = ~-drop x h-ind
+   in ~-trans recov-l xh-ind
 
 ++-comm~ : {l l' m : List ℕ} → l ~ (l' ++ m) → l ~ (m ++ l')
 ++-comm~ {l' = []} {m = []} ll'm = ll'm
