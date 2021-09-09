@@ -14,20 +14,9 @@ _≤*_ : (x : ℕ) → (l : List ℕ) → Set
 x ≤* [] = ⊤
 x ≤* (y ∷ l) = (x ≤ y) × (x ≤* l)
 
-example-≤* : 2 ≤* (3 ∷ 2 ∷ 5 ∷ [])
-example-≤* = s≤s (s≤s z≤n) , s≤s (s≤s z≤n) , s≤s (s≤s z≤n) , tt
-
-open import Relation.Nullary using (¬_)
-
-example-≰* : ¬ 3 ≤* (3 ∷ 2 ∷ 5 ∷ [])
-example-≰* (3≤3 , s≤s (s≤s ()) , _)
-
 sorted : (l : List ℕ) → Set
 sorted [] = ⊤
 sorted (x ∷ l) = x ≤* l × sorted l
-
-example1-sorted : sorted (1 ∷ 2 ∷ [])
-example1-sorted = (s≤s z≤n , tt) , tt , tt
 
 {-
    Permutations
@@ -38,12 +27,6 @@ data _~_ {A : Set} : List A → List A → Set where
   ~-drop : (x : A) { l l' : List A} → l ~ l' → (x ∷ l) ~ (x ∷ l')
   ~-swap : (x y : A) (l : List A) → (x ∷ y ∷ l) ~ (y ∷ x ∷ l)
   ~-trans : {l l' l'' : List A} → l ~ l' → l' ~ l'' → l ~ l''
-
-example-perm-1 : (3 ∷ 1 ∷ 2 ∷ []) ~ (1 ∷ 2 ∷ 3 ∷ [])
-example-perm-1 =
-  let p1 = ~-drop 1 (~-swap 3 2 [])
-      p2 = ~-swap 3 1 (2 ∷ [])
-   in ~-trans p2 p1
 
 ~-refl : {A : Set} {l : List A} → l ~ l
 ~-refl {_} {[]} = ~-nil
@@ -71,9 +54,6 @@ insert x (y ∷ l) with ≤-total x y
 sort : List ℕ → List ℕ
 sort [] = []
 sort (x ∷ l) = insert x (sort l)
-
-example1 : List ℕ
-example1 = sort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 ≤*-insert : (x y : ℕ) (l : List ℕ) → x ≤ y → x ≤* l → x ≤* insert y l
 ≤*-insert x y [] x≤y x≤*l = x≤y , tt
@@ -210,8 +190,6 @@ divide-list x (y ∷ l) with divide-list x l | ≤-total y x
 --   let le , gr = divide-list x l
 --   in quicksort' le ++ (x ∷ []) ++ quicksort' gr
 
--- quicksort-example' = quicksort' (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
-
 divide-list-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
                                              in length le ≤ length l × length gr ≤ length l
 divide-list-less _ [] = z≤n , z≤n
@@ -229,9 +207,6 @@ quicksort-fuel (x ∷ l) (suc n) (s≤s p) with divide-list-less x l
 
 quicksort : List ℕ → List ℕ
 quicksort l = quicksort-fuel l (length l) ≤-refl
-
-quicksort-example1 : List ℕ
-quicksort-example1 = quicksort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 _≥*_ : ℕ → List ℕ → Set
 x ≥* [] = ⊤
