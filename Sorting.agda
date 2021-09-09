@@ -51,15 +51,15 @@ insert x (y ∷ l) with ≤-total x y
 ... | inj₁ x≤y = x ∷ y ∷ l
 ... | inj₂ y≤x = y ∷ insert x l
 
-sort : List ℕ → List ℕ
-sort [] = []
-sort (x ∷ l) = insert x (sort l)
+insertion-sort : List ℕ → List ℕ
+insertion-sort [] = []
+insertion-sort (x ∷ l) = insert x (insertion-sort l)
 
 ≤*-insert : (x y : ℕ) (l : List ℕ) → x ≤ y → x ≤* l → x ≤* insert y l
 ≤*-insert x y [] x≤y x≤*l = x≤y , tt
 ≤*-insert x y (z ∷ l) x≤y (x≤z , z≤*l) with ≤-total y z
 ... | inj₁ y≤z = x≤y , x≤z , z≤*l
-... | inj₂ z≤y = x≤z , ( ≤*-insert x y l x≤y z≤*l )
+... | inj₂ z≤y = x≤z , (≤*-insert x y l x≤y z≤*l)
 
 ≤*-trans : {x y : ℕ} {l : List ℕ} → x ≤ y → y ≤* l → x ≤* l
 ≤*-trans {l = []} x≤y y≤*l = tt
@@ -71,9 +71,9 @@ insert-sorting x (y ∷ l) (y≤*l , sl) with ≤-total x y
 ... | inj₁ x≤y = (x≤y , ≤*-trans x≤y y≤*l) , y≤*l , sl
 ... | inj₂ y≤x = ≤*-insert y x l y≤x y≤*l , insert-sorting x l sl
 
-sort-sorts : ∀ (l : List ℕ) → sorted (sort l)
-sort-sorts [] = tt
-sort-sorts (x ∷ l) = insert-sorting x (sort l) (sort-sorts l)
+insertion-sort-sorts : ∀ (l : List ℕ) → sorted (insertion-sort l)
+insertion-sort-sorts [] = tt
+insertion-sort-sorts (x ∷ l) = insert-sorting x (insertion-sort l) (insertion-sort-sorts l)
 
 insert-~ : (x : ℕ) (l : List ℕ) → (x ∷ l) ~ (insert x l)
 insert-~ x [] = ~-drop x ~-nil
@@ -88,12 +88,12 @@ insert-~ x (y ∷ l) with ≤-total x y
       c = ~-drop x l~l'
     in ~-trans (~-trans a c) b
 
-sort-~ : (l : List ℕ) → l ~ (sort l)
-sort-~ [] = ~-nil
-sort-~ (x ∷ l) = ~-trans (~-drop x (sort-~ l)) (insert-~ x (sort l))
+insertion-sort-~ : (l : List ℕ) → l ~ (insertion-sort l)
+insertion-sort-~ [] = ~-nil
+insertion-sort-~ (x ∷ l) = ~-trans (~-drop x (insertion-sort-~ l)) (insert-~ x (insertion-sort l))
 
-insert-sort-correct : (l : List ℕ) → sorted (sort l) × l ~ sort l
-insert-sort-correct l = sort-sorts l , sort-~ l
+insertion-sort-correct : (l : List ℕ) → sorted (insertion-sort l) × l ~ insertion-sort l
+insertion-sort-correct l = insertion-sort-sorts l , insertion-sort-~ l
 
 {-
    No sort
