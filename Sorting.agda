@@ -34,7 +34,6 @@ suc m ≤? suc n with m ≤? n
 ... | inj₁ mn = inj₁ (s≤s mn)
 ... | inj₂ nm = inj₂ (s≤s nm)
 
-open import Data.Empty using (⊥)
 open import Data.Unit using (⊤; tt)
 open import Data.Product using (_×_; _,_)
 open import Data.List using (List; _∷_; [])
@@ -191,8 +190,6 @@ merge' x l [] = x ∷ l
 
 _<_ : (x y : ℕ) → Set
 x < y = suc x ≤ y
-
-open import Data.Product using (proj₁; proj₂)
 
 length : {A : Set} (l : List A) → ℕ
 length [] = zero
@@ -363,8 +360,6 @@ quicksort-fuel-sorts (x ∷ l) {suc n} {s≤s p} with divide-list-less x l
 quicksort-sorts : (l : List ℕ) → sorted (quicksort l)
 quicksort-sorts l = quicksort-fuel-sorts l
 
-open import Data.List.Properties using (++-identityʳ)
-
 open import Data.Product using (Σ-syntax)
 
 ~-uncons : {l xs : List ℕ} {x : ℕ}
@@ -399,6 +394,8 @@ open import Data.Product using (Σ-syntax)
   let h-ind = ++-~-∷-move-lr {ul} {xs} {ys} {y} ul-perm
       xh-ind = ~-drop x h-ind
    in ~-trans recov-l xh-ind
+
+open import Data.List.Properties using (++-identityʳ)
 
 ++-comm-~ : {l l' m : List ℕ}
          → l ~ (l' ++ m)
