@@ -1,6 +1,7 @@
 open import Sorting
 
-open import Data.List using (_++_; length)
+open import Data.Sum using (inj₁; inj₂)
+open import Data.Nat.Properties using (≤-total)
 
 divide-list : ℕ → List ℕ → List ℕ × List ℕ
 divide-list x [] = [] , []
@@ -8,12 +9,17 @@ divide-list x (y ∷ l) with divide-list x l | ≤-total y x
 ... | l , g | inj₁ y≤x = (y ∷ l) , g
 ... | l , g | inj₂ x≤y = l , (y ∷ g)
 
+open import Data.List using (length; _++_)
+
 -- {-# TERMINATING #-}
 -- quicksort' : List ℕ → List ℕ
 -- quicksort' [] = []
 -- quicksort' (x ∷ l) =
 --   let le , gr = divide-list x l
 --   in quicksort' le ++ (x ∷ []) ++ quicksort' gr
+
+open import Data.Nat using (z≤n; s≤s)
+open import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-step)
 
 divide-list-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
                                              in length le ≤ length l × length gr ≤ length l

@@ -2,14 +2,11 @@ module Sorting where
 
 open import Data.Unit using (⊤; tt) public
 open import Data.Product using (_×_; _,_) public
-open import Data.Sum using (inj₁; inj₂) public
 open import Data.List using (List; _∷_; []) public
 
 import Data.Nat as Nat
 open Nat using (ℕ; suc; zero) public
-open Nat using (_≤_; _≤?_; s≤s; z≤n) public
-
-open import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-total; ≤-step) public
+open Nat using (_≤_) public
 
 -- Less Than All Relation
 _≤*_ : (x : ℕ) → (l : List ℕ) → Set
@@ -31,6 +28,8 @@ Correct-Sorting-Algorithm : (f : List ℕ → List ℕ) → Set
 Correct-Sorting-Algorithm f = ∀ (l : List ℕ) → sorted (f l) × l ~ f l
 
 -- Properties of ≤*
+open import Data.Nat.Properties using (≤-trans)
+
 ≤*-trans : {x y : ℕ} {l : List ℕ} → x ≤ y → y ≤* l → x ≤* l
 ≤*-trans {l = []} x≤y y≤*l = tt
 ≤*-trans {l = z ∷ l} x≤y (x≤z , y≤*l) = ≤-trans x≤y x≤z , ≤*-trans x≤y y≤*l

@@ -1,5 +1,8 @@
 open import Sorting
 
+open import Data.Sum using (inj₁; inj₂)
+open import Data.Nat.Properties using (≤-total)
+
 insert : (x : ℕ) → (l : List ℕ) → List ℕ
 insert x [] = x ∷ []
 insert x (y ∷ l) with ≤-total x y
