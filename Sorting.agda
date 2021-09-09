@@ -450,18 +450,17 @@ divide-list-~ x (y ∷ l) with y ≤? x | divide-list-~ x l
 quicksort-~ : (n : ℕ) (l : List ℕ) (p : length l ≤ n) → l ~ (quicksort-fuel l n p)
 quicksort-~ n [] p = ~-nil
 quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-list-less x l
-... | p1 , p2 =
+... | lenle , lengr =
   let le , gr = divide-list x l
-      le-permuted = quicksort-~ n le (≤-trans p1 p)
-      gr-permuted = quicksort-~ n gr (≤-trans p2 p)
-      abc = ~-drop x gr-permuted
-      abc2 = ++-~ le-permuted abc
-      divl = ++-comm-~ {l} {le} (divide-list-~ x l)
-      d2 = ~-drop x divl
-      d3 = ++-comm-~ {x ∷ l} {x ∷ gr} d2
-      final : (x ∷ l) ~ (le ++ (x ∷ []) ++ gr)
-      final = d3
-   in ~-trans final abc2
+      le-permuted = quicksort-~ n le (≤-trans lenle p)
+      gr-permuted = quicksort-~ n gr (≤-trans lengr p)
+      xgr-permuted = ~-drop x gr-permuted
+      concat = ++-~ le-permuted xgr-permuted
+
+      div-~ = divide-list-~ x l
+      xdiv-~ = ~-drop x div-~
+      midx-div-~ = ++-~-∷-move-lr {xs = le} xdiv-~
+   in ~-trans midx-div-~ concat
 
 quicksort-permutes : (l : List ℕ) → l ~ (quicksort l)
 quicksort-permutes l = quicksort-~ (length l) l (≤-refl (length l))
