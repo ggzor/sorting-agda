@@ -1,42 +1,10 @@
-open import Data.Nat using (ℕ; zero; suc)
-open import Data.Sum using (_⊎_; inj₁; inj₂)
-
-data _≤_ : ℕ → ℕ → Set where
-  z≤n : {n : ℕ} → zero ≤ n
-  s≤s : {m n : ℕ} → m ≤ n → suc m ≤ suc n
-
-≤-pred : {m n : ℕ} → suc m ≤ suc n → m ≤ n
-≤-pred (s≤s m≤n) = m≤n
-
-≤-suc : {m n : ℕ} → m ≤ n → suc m ≤ suc n
-≤-suc = s≤s
-
-≤s : (n : ℕ) → n ≤ suc n
-≤s zero = z≤n
-≤s (suc n) = s≤s (≤s n)
-
-≤-sucᴿ : {m n : ℕ} → m ≤ n → m ≤ suc n
-≤-sucᴿ z≤n = z≤n
-≤-sucᴿ (s≤s p) = s≤s (≤-sucᴿ p)
-
-≤-refl : (n : ℕ) → n ≤ n
-≤-refl zero = z≤n
-≤-refl (suc n) = s≤s (≤-refl n)
-
-≤-trans : {m n p : ℕ} → (m ≤ n) → (n ≤ p) → (m ≤ p)
-≤-trans z≤n np = z≤n
-≤-trans (s≤s mn) (s≤s np) = s≤s (≤-trans mn np)
-
-_≤?_ : (m n : ℕ) → (m ≤ n) ⊎ (n ≤ m)
-zero ≤? n = inj₁ z≤n
-suc m ≤? zero = inj₂ z≤n
-suc m ≤? suc n with m ≤? n
-... | inj₁ mn = inj₁ (s≤s mn)
-... | inj₂ nm = inj₂ (s≤s nm)
-
 open import Data.Unit using (⊤; tt)
 open import Data.Product using (_×_; _,_)
 open import Data.List using (List; _∷_; [])
+
+import Data.Nat as Nat
+open Nat using (ℕ; suc; zero)
+open Nat using (_≤_; _≤?_; s≤s; z≤n)
 
 {-
    Less Than All Relation
@@ -91,11 +59,14 @@ example-perm-1 =
    Insertion sort
 -}
 
+open import Data.Nat.Properties using (≤-refl; ≤-trans; ≤-total; ≤-step)
+open import Data.Sum using (inj₁; inj₂)
+
 insert : (x : ℕ) → (l : List ℕ) → List ℕ
 insert x [] = x ∷ []
-insert x (y ∷ l) with x ≤? y
-... | inj₁ xy = x ∷ y ∷ l
-... | inj₂ yx = y ∷ insert x l
+insert x (y ∷ l) with ≤-total x y
+... | inj₁ x≤y = x ∷ y ∷ l
+... | inj₂ y≤x = y ∷ insert x l
 
 sort : List ℕ → List ℕ
 sort [] = []
@@ -106,7 +77,7 @@ example1 = sort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 ≤*-insert : (x y : ℕ) (l : List ℕ) → x ≤ y → x ≤* l → x ≤* insert y l
 ≤*-insert x y [] x≤y x≤*l = x≤y , tt
-≤*-insert x y (z ∷ l) x≤y (x≤z , z≤*l) with y ≤? z
+≤*-insert x y (z ∷ l) x≤y (x≤z , z≤*l) with ≤-total y z
 ... | inj₁ y≤z = x≤y , x≤z , z≤*l
 ... | inj₂ z≤y = x≤z , ( ≤*-insert x y l x≤y z≤*l )
 
@@ -116,7 +87,7 @@ example1 = sort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 insert-sorting : (x : ℕ) → (l : List ℕ) → sorted l → sorted (insert x l)
 insert-sorting x [] sl = tt , tt
-insert-sorting x (y ∷ l) (y≤*l , sl) with x ≤? y
+insert-sorting x (y ∷ l) (y≤*l , sl) with ≤-total x y
 ... | inj₁ x≤y = (x≤y , ≤*-trans x≤y y≤*l) , y≤*l , sl
 ... | inj₂ y≤x = ≤*-insert y x l y≤x y≤*l , insert-sorting x l sl
 
@@ -126,7 +97,7 @@ sort-sorts (x ∷ l) = insert-sorting x (sort l) (sort-sorts l)
 
 insert-~ : (x : ℕ) (l : List ℕ) → (x ∷ l) ~ (insert x l)
 insert-~ x [] = ~-drop x ~-nil
-insert-~ x (y ∷ l) with x ≤? y
+insert-~ x (y ∷ l) with ≤-total x y
 ... | inj₁ x≤y = ~-refl
 ... | inj₂ y≤x = ~-trans (~-swap x y l) (~-drop y (insert-~ x l))
 
@@ -171,12 +142,12 @@ split (x ∷ y ∷ l) with split l
 merge : (l m : List ℕ) → List ℕ
 merge' : ℕ → (l m : List ℕ) → List ℕ
 
-merge (x ∷ l) (y ∷ m) with x ≤? y
+merge (x ∷ l) (y ∷ m) with ≤-total x y
 ... | inj₁ x≤y = x ∷ merge l (y ∷ m)
 ... | inj₂ y≤x = y ∷ merge' x l m
 merge l m = l ++ m
 
-merge' x l (y ∷ m) with x ≤? y
+merge' x l (y ∷ m) with ≤-total x y
 ... | inj₁ x≤y = x ∷ merge l (y ∷ m)
 ... | inj₂ y≤x = y ∷ merge' x l m
 merge' x l [] = x ∷ l
@@ -201,7 +172,7 @@ split-less : {x y : ℕ} (l : List ℕ) → let l' = x ∷ y ∷ l
 split-less [] = s≤s (s≤s z≤n) , s≤s (s≤s z≤n)
 split-less (z ∷ []) = s≤s (s≤s (s≤s z≤n)) , s≤s (s≤s z≤n)
 split-less lz@(z ∷ z' ∷ l) with split-less {z} {z'} l
-... | s≤s (s≤s p1) , s≤s (s≤s p2) = s≤s (s≤s (s≤s (≤-sucᴿ p1))) , s≤s (s≤s (s≤s (≤-sucᴿ p2)))
+... | s≤s (s≤s p1) , s≤s (s≤s p2) = s≤s (s≤s (s≤s (≤-step p1))) , s≤s (s≤s (s≤s (≤-step p2)))
 
 mergesort-fuel : (n : ℕ) → (l : List ℕ) → (length l ≤ n) → List ℕ
 mergesort-fuel n [] p = []
@@ -212,7 +183,7 @@ mergesort-fuel (suc n) l@(a ∷ b ∷ l') (s≤s p) with split-less {a} {b} l'
     in merge (mergesort-fuel n xs (≤-trans p1 p)) (mergesort-fuel n ys (≤-trans p2 p))
 
 mergesort : (l : List ℕ) → List ℕ
-mergesort l = mergesort-fuel (length l) l (≤-refl (length l))
+mergesort l = mergesort-fuel (length l) l ≤-refl
 
 test-merge : List ℕ
 test-merge = mergesort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
@@ -228,7 +199,7 @@ test-merge = mergesort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
 
 divide-list : ℕ → List ℕ → List ℕ × List ℕ
 divide-list x [] = [] , []
-divide-list x (y ∷ l) with divide-list x l | y ≤? x
+divide-list x (y ∷ l) with divide-list x l | ≤-total y x
 ... | l , g | inj₁ y≤x = (y ∷ l) , g
 ... | l , g | inj₂ x≤y = l , (y ∷ g)
 
@@ -244,9 +215,9 @@ divide-list x (y ∷ l) with divide-list x l | y ≤? x
 divide-list-less : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
                                              in length le ≤ length l × length gr ≤ length l
 divide-list-less _ [] = z≤n , z≤n
-divide-list-less x (y ∷ l) with divide-list-less x l | y ≤? x
-... | p1 , p2 | inj₁ y≤x = s≤s p1 , ≤-sucᴿ p2
-... | p1 , p2 | inj₂ x≤y = (≤-sucᴿ p1) , (s≤s p2)
+divide-list-less x (y ∷ l) with divide-list-less x l | ≤-total y x
+... | p1 , p2 | inj₁ y≤x = s≤s p1 , ≤-step p2
+... | p1 , p2 | inj₂ x≤y = ≤-step p1 , (s≤s p2)
 
 quicksort-fuel : (l : List ℕ) → (n : ℕ) → (length l ≤ n) → List ℕ
 quicksort-fuel [] n p = []
@@ -257,7 +228,7 @@ quicksort-fuel (x ∷ l) (suc n) (s≤s p) with divide-list-less x l
                         ++ (quicksort-fuel gr n (≤-trans gr≤l p))
 
 quicksort : List ℕ → List ℕ
-quicksort l = quicksort-fuel l (length l) (≤-refl (length l))
+quicksort l = quicksort-fuel l (length l) ≤-refl
 
 quicksort-example1 : List ℕ
 quicksort-example1 = quicksort (4 ∷ 1 ∷ 45 ∷ 8 ∷ 32 ∷ 12 ∷ 1 ∷ [])
@@ -277,7 +248,7 @@ x ≥* (y ∷ ys) = y ≤ x × x ≥* ys
 divide-list-compare : (x : ℕ) → (l : List ℕ) → let le , gr = divide-list x l
                                                 in x ≥* le × x ≤* gr
 divide-list-compare x [] = tt , tt
-divide-list-compare x (y ∷ l) with y ≤? x
+divide-list-compare x (y ∷ l) with ≤-total y x
 ... | inj₁ y≤x =
   let x≥*le , x≤*gr = divide-list-compare x l
    in (y≤x , x≥*le) , x≤*gr
@@ -290,7 +261,7 @@ divide-list-preserves-≤* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → let le , gr = divide-list y l
                              in x ≤* le × x ≤* gr
 divide-list-preserves-≤* y {l = []}     x≤*l = tt , tt
-divide-list-preserves-≤* y {l = z ∷ l} (x≤z , x≤*l) with z ≤? y
+divide-list-preserves-≤* y {l = z ∷ l} (x≤z , x≤*l) with ≤-total z y
 ... | inj₁ z≤y =
   let x≤*le , x≤*gr = divide-list-preserves-≤* y x≤*l
    in (x≤z , x≤*le) , x≤*gr
@@ -303,7 +274,7 @@ divide-list-preserves-≥* : (y : ℕ) {x : ℕ} {l : List ℕ}
                           → let le , gr = divide-list y l
                              in x ≥* le × x ≥* gr
 divide-list-preserves-≥* y {l = []}    x≥*l = tt , tt
-divide-list-preserves-≥* y {l = z ∷ l} (z≤x , x≥*l) with z ≤? y
+divide-list-preserves-≥* y {l = z ∷ l} (z≤x , x≥*l) with ≤-total z y
 ... | inj₁ z≤y =
    let x≥*le , x≥*gr = divide-list-preserves-≥* y x≥*l
     in (z≤x , x≥*le) , x≥*gr
@@ -418,7 +389,7 @@ open import Data.List.Properties using (++-identityʳ)
 divide-list-~ : (x : ℕ) (l : List ℕ) → let le , gr = divide-list x l
                                           in l ~ (le ++ gr)
 divide-list-~ x [] = ~-nil
-divide-list-~ x (y ∷ l) with y ≤? x | divide-list-~ x l
+divide-list-~ x (y ∷ l) with ≤-total y x | divide-list-~ x l
 ... | inj₁ _ | p = ~-drop y p
 ... | inj₂ _ | p =
   let le , gr = divide-list x l
@@ -458,7 +429,7 @@ quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-list-less x l
    in ~-trans midx-div-~ concat
 
 quicksort-permutes : (l : List ℕ) → l ~ (quicksort l)
-quicksort-permutes l = quicksort-~ (length l) l (≤-refl (length l))
+quicksort-permutes l = quicksort-~ (length l) l ≤-refl
 
 quicksort-is-correct : (l : List ℕ) → sorted (quicksort l) × l ~ (quicksort l)
 quicksort-is-correct l = quicksort-sorts l , quicksort-permutes l
