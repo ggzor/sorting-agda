@@ -43,6 +43,6 @@ insertion-sort-~ : (l : List ℕ) → l ~ (insertion-sort l)
 insertion-sort-~ [] = ~-nil
 insertion-sort-~ (x ∷ l) = ~-trans (~-drop x (insertion-sort-~ l)) (insert-~ x (insertion-sort l))
 
-insertion-sort-correct : (l : List ℕ) → sorted (insertion-sort l) × l ~ insertion-sort l
+insertion-sort-correct : Correct-Sorting-Algorithm insertion-sort
 insertion-sort-correct l = insertion-sort-sorts l , insertion-sort-~ l
 

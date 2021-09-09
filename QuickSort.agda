@@ -231,6 +231,6 @@ quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-list-less x l
 quicksort-permutes : (l : List ℕ) → l ~ (quicksort l)
 quicksort-permutes l = quicksort-~ (length l) l ≤-refl
 
-quicksort-is-correct : (l : List ℕ) → sorted (quicksort l) × l ~ (quicksort l)
+quicksort-is-correct : Correct-Sorting-Algorithm quicksort
 quicksort-is-correct l = quicksort-sorts l , quicksort-permutes l
 

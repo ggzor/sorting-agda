@@ -27,6 +27,9 @@ data _~_ {A : Set} : List A → List A → Set where
   ~-swap : (x y : A) (l : List A) → (x ∷ y ∷ l) ~ (y ∷ x ∷ l)
   ~-trans : {l l' l'' : List A} → l ~ l' → l' ~ l'' → l ~ l''
 
+Correct-Sorting-Algorithm : (f : List ℕ → List ℕ) → Set
+Correct-Sorting-Algorithm f = ∀ (l : List ℕ) → sorted (f l) × l ~ f l
+
 -- Properties of ≤*
 ≤*-trans : {x y : ℕ} {l : List ℕ} → x ≤ y → y ≤* l → x ≤* l
 ≤*-trans {l = []} x≤y y≤*l = tt
