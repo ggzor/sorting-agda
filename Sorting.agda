@@ -425,10 +425,8 @@ divide-list-~ x (y ∷ l) with y ≤? x | divide-list-~ x l
 ... | inj₁ _ | p = ~-drop y p
 ... | inj₂ _ | p =
   let le , gr = divide-list x l
-      c1 = ++-comm-~ {l} {le} p
-      c2 = ~-drop y c1
-      c3 = ++-comm-~ {y ∷ l} {y ∷ gr} c2
-   in c3
+      yp = ~-drop y p
+   in ++-~-∷-move-lr yp
 
 ++-~ᴸ : (m : List ℕ) {l l' : List ℕ} → l ~ l' → (m ++ l) ~ (m ++ l')
 ++-~ᴸ [] p = p
