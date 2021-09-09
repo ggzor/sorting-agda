@@ -48,18 +48,6 @@ data _~_ {A : Set} : List A → List A → Set where
 ~-sym (~-trans l~l'' l''~l) = ~-trans (~-sym l''~l) (~-sym l~l'')
 
 {-
-   No sort
--}
-
-no-sort : List ℕ → List ℕ
-no-sort [] = []
-no-sort (_ ∷ _) = []
-
-no-sort-sorts : ∀ (l : List ℕ) → sorted (no-sort l)
-no-sort-sorts [] = tt
-no-sort-sorts (_ ∷ _) = tt
-
-{-
    Merge sort
 -}
 
