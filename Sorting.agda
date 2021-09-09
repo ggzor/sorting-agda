@@ -400,19 +400,23 @@ open import Data.Product using (Σ-syntax)
       xh-ind = ~-drop x h-ind
    in ~-trans recov-l xh-ind
 
-++-comm~ : {l l' m : List ℕ} → l ~ (l' ++ m) → l ~ (m ++ l')
-++-comm~ {l' = []} {m = []} ll'm = ll'm
-++-comm~ {l' = []} {m = x ∷ m} ll'm rewrite ++-identityʳ (x ∷ m) = ll'm
-++-comm~ {l' = x ∷ l'} {m = []} ll'm rewrite ++-identityʳ (x ∷ l') = ll'm
-++-comm~ {l} {y ∷ l'} {m = z ∷ m} ll'm with ~-uncons ll'm
-... | ln , ln-perm , recovln with ~-uncons (++-~-∷-move-rl ln-perm)
-... | ln' , ln'-perm , recovln' =
-  let p1 = ++-comm~ {ln'} {l'} {m} ln'-perm
-      abc1 = ~-drop z p1
-      t1 = ~-trans recovln' abc1
-      abc2 = ~-drop y t1
-      t2 = ~-trans recovln abc2
-   in ++-~-∷-move-lr {xs = z ∷ m} t2
+++-comm-~ : {l l' m : List ℕ}
+         → l ~ (l' ++ m)
+         → l ~ (m ++ l')
+++-comm-~ {l' = []} {m = []}    ll'm = ll'm
+++-comm-~ {l' = []} {m = z ∷ m} ll'm rewrite ++-identityʳ (z ∷ m) = ll'm
+++-comm-~ {l' = y ∷ l'} {m = []}    ll'm rewrite ++-identityʳ (y ∷ l') = ll'm
+++-comm-~ {l' = y ∷ l'} {m = z ∷ m} ll'm
+         with ~-uncons ll'm
+... | uy , uy-perm , recov-l
+         with ~-uncons (++-~-∷-move-rl uy-perm)
+... | uz , uz-perm , recov-uy =
+     let h-ind = ++-comm-~ {l' = l'} uz-perm
+         zh-ind = ~-drop z h-ind
+         zuy = ~-trans recov-uy zh-ind
+         y-zuy = ~-drop y zuy
+         nl = ~-trans recov-l y-zuy
+      in ++-~-∷-move-lr {xs = z ∷ m} nl
 
 divide-list-~ : (x : ℕ) (l : List ℕ) → let le , gr = divide-list x l
                                           in l ~ (le ++ gr)
@@ -421,9 +425,9 @@ divide-list-~ x (y ∷ l) with y ≤? x | divide-list-~ x l
 ... | inj₁ _ | p = ~-drop y p
 ... | inj₂ _ | p =
   let le , gr = divide-list x l
-      c1 = ++-comm~ {l} {le} p
+      c1 = ++-comm-~ {l} {le} p
       c2 = ~-drop y c1
-      c3 = ++-comm~ {y ∷ l} {y ∷ gr} c2
+      c3 = ++-comm-~ {y ∷ l} {y ∷ gr} c2
    in c3
 
 ++-~ᴸ : (m : List ℕ) {l l' : List ℕ} → l ~ l' → (m ++ l) ~ (m ++ l')
@@ -452,9 +456,9 @@ quicksort-~ (suc n) (x ∷ l) (s≤s p) with divide-list-less x l
       gr-permuted = quicksort-~ n gr (≤-trans p2 p)
       abc = ~-drop x gr-permuted
       abc2 = ++-~ le-permuted abc
-      divl = ++-comm~ {l} {le} (divide-list-~ x l)
+      divl = ++-comm-~ {l} {le} (divide-list-~ x l)
       d2 = ~-drop x divl
-      d3 = ++-comm~ {x ∷ l} {x ∷ gr} d2
+      d3 = ++-comm-~ {x ∷ l} {x ∷ gr} d2
       final : (x ∷ l) ~ (le ++ (x ∷ []) ++ gr)
       final = d3
    in ~-trans final abc2
