@@ -4,4 +4,5 @@ MAlonzo/**
 .*.vim
 *.agda.html
 *.agda~
+*.lagda~
 
