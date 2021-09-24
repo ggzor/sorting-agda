@@ -5,7 +5,7 @@
 ## Abstract
 ## Abstract
 
-Este es el resumen en español.
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
 This is the abstract in English.
 
@@ -14,7 +14,8 @@ This is the abstract in English.
 
 Crear software correcto es una de las tareas más complejas que se tiene en el
 desarrollo de software debido a que requiere un entendimiento completo tanto del
-problema que se desea resolver, como de la solución que se propone.
+problema que se desea resolver, como de la solución que se propone
+\cite{lamport94}.
 \par
 Primeramente, se deben establecer los criterios para determinar que el software
 desarrollado es correcto. La expresión de estos criterios debe realizarse de
@@ -314,3 +315,11 @@ TODO
 
 > ../InsertionSort.agda:58-60
 
+## Agradecimientos
+## Acknowledgements
+
+Este trabajo fue financiado por la Vicerrectoría de Investigación y Estudios de
+Posgrado de la BUAP, en el marco del programa ``Haciendo ciencia en la BUAP
+2021".
+
+TODO

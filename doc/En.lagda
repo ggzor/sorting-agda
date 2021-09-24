@@ -1,8 +1,24 @@
-\documentclass{llncs}
+\documentclass[12pt]{llncs}
 \usepackage{a4}
 \usepackage{upgreek}
 \usepackage{agda}
 \usepackage{comment}
+\usepackage{abstract}
+\usepackage{sectsty}
+
+\pagestyle{plain}
+
+\usepackage[margin=2.5cm]{geometry}
+\setlength{\parindent}{0pt}
+
+\setlength{\absleftindent}{2cm}
+\setlength{\absrightindent}{2cm}
+
+\sectionfont{\fontsize{12}{14.4}\selectfont}
+
+\renewcommand{\absnamepos}{flushleft}
+\renewcommand{\abstractname}{\fontsize{12}{14.4}\selectfont Resumen}
+\renewcommand{\refname}{\fontsize{12}{14.4}\selectfont Referencias}
 
 % Use fonts with a decent coverage of non-ASCII characters.
 \usepackage{fontspec}
@@ -22,29 +38,30 @@
 
 \usepackage{lipsum}
 
-\title{Formal specification and verification of a sorting algorithm}
-\author{Axel Suárez Polo}
-\institute
-  {BUAP\\
-   \email{axel.suarez@alumno.buap.mx}
-  }
+\title{\fontsize{14}{16.8}\selectfont Formal specification and verification of a sorting algorithm\vspace{-10pt}%
+}
+\author{\fontsize{10}{12}\selectfont Axel Suárez Polo$^1$, José de Jesús Lavalle Martínez$^1$\\
+        $^1$Facultad de Ciencias de la Computación - BUAP}
+\institute{}
 
 \begin{document}
 
 \maketitle
 
+\thispagestyle{plain}
+
 \begin{abstract}
-This is the abstract in English.
+\textit{\fontsize{10}{12}\selectfont This is the abstract in English.}
 \end{abstract}
 
 \section{Introduction}
 
-TODO
+{TODO}
 
 
 \section{Specification}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -52,7 +69,7 @@ open import Data.Nat using (ℕ; suc; zero) public
 open import Data.List using (List; _∷_; []) public
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -66,14 +83,14 @@ list1 : List ℕ
 list1 = 1 ∷ 2 ∷ 3 ∷ []
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
 open import Data.Nat using (_≤_) public
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -86,7 +103,7 @@ le2 : 1 ≤ 2
 le2 = s≤s z≤n
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -100,10 +117,10 @@ x ≤* [] = ⊤
 x ≤* (y ∷ l) = (x ≤ y) × (x ≤* l)
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -115,7 +132,7 @@ ac1' : 1 ≤ 2 × 1 ≤ 3 × ⊤
 ac1' = s≤s z≤n , s≤s z≤n , tt
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -124,10 +141,10 @@ sorted [] = ⊤
 sorted (x ∷ l) = x ≤* l × sorted l
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -138,7 +155,7 @@ no-sort-sorts : ∀ (l : List ℕ) → sorted (no-sort l)
 no-sort-sorts l = tt
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -149,10 +166,10 @@ data _~_ {A : Set} : List A → List A → Set where
   ~-trans  : {l l' l'' : List A}       →  l ~ l' → l' ~ l'' → l ~ l''
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -163,7 +180,7 @@ perm1 =
    in ~-trans p2 p1
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -171,12 +188,12 @@ Correct-Sorting-Algorithm : (f : List ℕ → List ℕ) → Set
 Correct-Sorting-Algorithm f = ∀ (l : List ℕ) → sorted (f l) × l ~ f l
 \end{code}
 
-TODO
+{TODO}
 
 
 \section{Verification}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -194,10 +211,10 @@ insertion-sort [] = []
 insertion-sort (x ∷ l) = insert x (insertion-sort l)
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -208,10 +225,10 @@ TODO
 ... | inj₂ z≤y = x≤z , (≤*-insert x y l x≤y z≤*l)
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -223,7 +240,7 @@ open import Data.Nat.Properties using (≤-trans)
   ≤-trans x≤y x≤z , ≤*-trans x≤y y≤*l
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -237,10 +254,10 @@ insert-preserves-sorted x (y ∷ l) (y≤*l , sl) with ≤-total x y
         ≤*-insert y x l y≤x y≤*l , insert-preserves-sorted x l sl
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -251,7 +268,7 @@ insertion-sort-sorts (x ∷ l) =
    in  insert-preserves-sorted x (insertion-sort l) h-ind
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -260,7 +277,7 @@ TODO
 ~-refl {l = x ∷ l}  = ~-drop x ~-refl
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -271,7 +288,7 @@ TODO
 ~-sym (~-trans l~l'' l''~l)  = ~-trans (~-sym l''~l) (~-sym l~l'')
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -282,7 +299,7 @@ insert-~ x (y ∷ l) with ≤-total x y
 ... | inj₂ y≤x = ~-trans (~-swap x y l) (~-drop y (insert-~ x l))
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -294,7 +311,7 @@ TODO
    in ~-trans p1 (~-trans mid p2)
 \end{code}
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -307,10 +324,10 @@ insertion-sort-~ (x ∷ l) =
    in ~-trans p1 p2
 \end{code}
 
-TODO
+{TODO}
 
 
-TODO
+{TODO}
 
 
 \begin{code}
@@ -319,5 +336,17 @@ insertion-sort-correct l =
   insertion-sort-sorts l , insertion-sort-~ l
 \end{code}
 
+\section{Acknowledgements}
+
+{TODO}
+
+
+
+\begin{thebibliography}{9}
+\fontsize{10}{12}\selectfont
+\bibitem{lamport94}
+Leslie Lamport (1994) \emph{\LaTeX: a document preparation system}, Addison
+Wesley, Massachusetts, 2nd ed.
+\end{thebibliography}
 
 \end{document}
