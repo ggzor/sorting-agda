@@ -5,6 +5,13 @@
 \usepackage{comment}
 \usepackage{abstract}
 \usepackage{sectsty}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true,
+            linkcolor=blue,
+            urlcolor=blue,
+            filecolor=blue,
+            citecolor=black}
 
 \pagestyle{plain}
 
@@ -79,9 +86,21 @@ ${part.text}
 
 \begin{thebibliography}{9}
 \fontsize{10}{12}\selectfont
-\bibitem{lamport94}
-Leslie Lamport (1994) \emph{\LaTeX: a document preparation system}, Addison
-Wesley, Massachusetts, 2nd ed.
+
+\bibitem{agda-site}
+What is Agda? (2021). \href{https://agda.readthedocs.io/en/v2.6.2/getting-started/what-is-agda.html}
+                           {https://agda.readthedocs.io/en/v2.6.2/getting-started/what-is-agda.html}
+
+\bibitem{agda-vfpa}
+Stump, Aaron. (2016). Verified Functional Programming in Agda. 10.1145/2841316.2841321.
+
+\bibitem{agda-whydt}
+T. Altenkirch, C. McBride, and J. McKinna. Why dependent types matter.
+Disponible en línea, Abril 2005.
+
+\bibitem{agda-peqp}
+Mimram, S. (2020). Program = Proof. Independently Published.
+
 \end{thebibliography}
 
 \end{document}

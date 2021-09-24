@@ -5,7 +5,13 @@
 ## Abstract
 ## Abstract
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+Este trabajo muestra la especificación y verificación formal del algoritmo de
+ordenamiento por inserción utilizando el lenguaje de programación Agda, que al
+contar con un sistema de tipos dependientes, permite especificar y verificar en
+el mismo lenguaje. Este documento es un archivo literate, por lo que todo el
+código que se encuentra aquí ha sido validado por Agda \cite{agda-site}. El
+repositorio de este proyecto se puede encontrar en
+\url{https://github.com/ggzor/sorting-agda}.
 
 This is the abstract in English.
 
@@ -15,7 +21,7 @@ This is the abstract in English.
 Crear software correcto es una de las tareas más complejas que se tiene en el
 desarrollo de software debido a que requiere un entendimiento completo tanto del
 problema que se desea resolver, como de la solución que se propone
-\cite{lamport94}.
+\cite{agda-vfpa}.
 \par
 Primeramente, se deben establecer los criterios para determinar que el software
 desarrollado es correcto. La expresión de estos criterios debe realizarse de
@@ -32,8 +38,9 @@ la \textbf{verificación} del software.
 \par
 En este documento se utiliza el lenguaje de programación \textbf{Agda}, que al
 contar con \textit{tipos dependientes}, permite realizar la especificación,
-implementación y verificación en el mismo lenguaje. Este lenguaje pertenece a la
-clase de métodos formales conocida como \textit{demostración automática de teoremas}.
+implementación y verificación en el mismo lenguaje \cite{agda-whydt}. Este
+lenguaje pertenece a la clase de métodos formales conocida como
+\textit{demostración automática de teoremas}.
 
 TODO
 
@@ -314,6 +321,28 @@ implicando que hemos verificado el algoritmo de ordenamiento.
 TODO
 
 > ../InsertionSort.agda:58-60
+
+## Conclusiones
+## Conclusions
+
+\begin{itemize}
+  \item Realizar la especificación y verificación formal del software es una
+        tarea ardua. Afortunadamente las herramientas como Agda nos dan una
+        garantía en que nuestro razonamiento es correcto y pueden asistir en la
+        escritura de las soluciones.
+  \item La labor de realizar la especificación es un proceso iterativo que
+        requiere múltiples y progresivos refinamientos para garantizar que se
+        capturan las todas las características cruciales del problema que se
+        desea resolver.
+  \item La desventaja de estos sistemas es que se requiere ser muy preciso y
+        explícito en cada uno de los pasos de la especificación y verificación.
+  \item Un programa verificado con estas herramientas sólo es tan correcto como
+        sea su especificación; es decir, puede haber programas que pasen la
+        verificación, pero no sean correctos por una especificación incompleta
+        \cite{agda-peqp}.
+\end{itemize}
+
+TODO
 
 ## Agradecimientos
 ## Acknowledgements
