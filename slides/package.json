@@ -1,0 +1,19 @@
+{
+  "name": "slides",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "mdx-deck index.mdx",
+    "build": "mdx-deck build index.mdx"
+  },
+  "devDependencies": {
+    "mdx-deck": "^4.1.1"
+  },
+  "dependencies": {
+    "@theme-ui/prism": "^0.11.3",
+    "framer-motion": "^4.1.17",
+    "react-syntax-highlighter": "^15.4.4",
+    "styled-components": "^5.3.1"
+  }
+}

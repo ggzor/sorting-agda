@@ -1,0 +1,324 @@
+<!-- vim: set tw=70 spell spelllang=es,en: -->
+
+import { theme as themeBase } from './theme.js';
+export const theme = themeBase
+
+<Head>
+  <style>
+  {`[class$="Main"] > div { padding: 0 25%; }`}
+  </style>
+</Head>
+
+# Especificación y verificación formal de un algoritmo de ordenamiento
+
+Axel Suárez Polo, José de Jesús Lavalle Martínez
+
+### BUAP
+
+---
+
+## Especificación formal
+
+- No debe ser ambigua
+- Debe ser completa
+
+
+
+<Notes>
+
+- Lo primero que debemos hacer es determinar los criterios para
+  establecer que nuestro algoritmo es correcto.
+- Para esto se tiene que desarrollar una especificación que no sea
+  ambigua.
+- Y que además sea completa, es decir, Debe abarcar todas las
+  características deseadas Una vez que se tiene la especificación,
+
+</Notes>
+
+---
+
+## Verificación formal
+
+- Realizar la implementación
+- Verificar la correspondencia con la especificación
+
+
+
+<Notes>
+
+- Se puede proceder a realizar la implementación
+  y la verificación del algoritmo.
+- Donde se revisa la correspondencia con la especificación.
+
+</Notes>
+
+---
+
+## Agda 2
+
+- Lenguaje de programación funcional con **tipos dependientes**.
+- Agda puede ser utilizado como un asistente de demostraciones
+- Todas las funciones en Agda son totales:
+  - Siempre terminan
+  - No pueden ocurrir errores en tiempo de ejecución
+
+<img alt="Agda Logo"
+     style={{ width: '50vw', height: 'min-content' }}
+     src="https://github.com/agda/agda/raw/master/doc/user-manual/agda.svg" />
+
+
+
+<Notes>
+
+- Para llevar a cabo estas tareas se hizo uso del lenguaje de
+  programación Agda
+- Que es un (mencionar lo que está en la diapositiva...)
+
+</Notes>
+
+---
+
+## Tipos dependientes
+
+- Permiten introducir familias de tipos indizadas por
+  objetos de otro tipo.
+
+```agda
+f : (a : A) → (B a)
+```
+
+- Es posible expresar relaciones entre los parámetros o el tipo de
+  retorno de una función.
+- En el mismo lenguaje se puede llevar a cabo la **especificación** y
+  la **verificación**.
+
+
+<Notes>
+
+- La característica más relevante de Agda es su sistema de tipos
+- Podemos aprovechar su sistema de tipos para expresar relaciones
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Para expresar la propiedad de que una lista esté ordenada,
+  necesitamos definir un **predicado** de forma inductiva de la
+  siguiente forma:
+  - Una lista vacía está ordenada.
+  - Una lista con al menos un elemento **x** está ordenada si las
+    siguientes condiciones se cumplen:
+      - **x** es menor que todos los elementos restantes.
+      - El resto de la lista está ordenado.
+- Esta especificación la podemos expresar en Agda de la siguiente
+  forma con el predicado `sorted`:
+
+![](pred.png)
+
+- La especificación no tiene ambigüedades.
+
+<Notes>
+
+- Nótese que se ha particularizado esta especificación al caso de los
+  naturales, pero esto se puede generalizar sin problemas a cualquier
+  orden total decidible.
+- La única evidencia que pedimos para expresar que una lista está
+  ordenada es la verdad.
+- Esta especificación no es ambigua, puesto que cada una de las
+  definiciones que utilizamos es revisada por Agda y debe de haberse
+  definido con anterioridad, como la definición de los números
+  naturales, la definición de las listas y la relación de orden `<=`
+  entre los naturales.
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Sin embargo, esta especificación no es completa.
+- La siguiente función toma una lista y devuelve una lista
+  ordenada:
+
+```agda
+no-sort : List ℕ → List ℕ
+no-sort l = []
+```
+
+- La lista vacía está trivialmente ordenada, de acuerdo a nuestra
+  especificación.
+
+<Notes>
+
+- Toma la lista, la ignora y simplemente devuelve la lista vacía.
+- La única evidencia que pedimos para expresar que una lista está
+  ordenada es la verdad.
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- No podemos devolver cualquier lista ordenada.
+- La lista resultante tiene que ser una **permutación** de la
+  lista que tomó el algoritmo como entrada.
+- Tenemos que ser específicos a que nos referimos con que una lista
+  sea *permutación* de otra lista.
+
+<Notes>
+
+- Podría pensarse, incluso, que devolver una lista con la misma
+  cantidad de elementos es suficiente, sin embargo, esto no es
+  correcto puesto que el algoritmo podría introducir o remover
+  elementos.
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Podemos definir las permutaciones de forma inductiva:
+  - La lista vacía es permutación de sí misma.
+    ```agda
+    [] ~ []
+    ```
+  - Agregar dos elementos al derecho y al revés a una misma lista
+    forma una permutación.
+    ```agda
+    (x ∷ y ∷ l) ~ (y ∷ x ∷ l)
+    ```
+
+<Notes>
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Podemos definir las permutaciones de forma inductiva:
+  - Si dos listas son permutación la una de la otra, agregando
+    el mismo elemento al inicio de ambas, se mantiene la relación de permutación.
+    ```agda
+    l ~ l' → (x ∷ l) ~ (x ∷ l')
+    ```
+  - La relación es transitiva.
+    ```agda
+    l ~ l' → l' ~ l'' → l ~ l''
+    ```
+
+<Notes>
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Esto se puede expresar directamente con el sistema de tipos de Agda
+
+![](permutation.png)
+
+<Notes>
+
+- Sólo es necesario realizar la cuantificación de las variables
+  utilizadas y agregar los tipos correspondientes.
+
+</Notes>
+
+---
+
+## Especificación formal en Agda
+
+- Finalmente, podemos completar nuestra especificación con el
+  siguiente predicado:
+
+![](correct-sorting.png)
+
+<Notes>
+
+- Nótese que se hace uso de los dos predicados que se definieron con
+  anterioridad, por lo que nuestra especificación es bastante
+  específica.
+
+</Notes>
+
+---
+
+## Implementación
+
+- Una vez que tenemos la especificación completa, se puede proceder a
+  implementar el algoritmo en el mismo lenguaje.
+- En este caso, se implementó el ordenamiento por inserción:
+
+![](insertion-math.png)
+![](sort-math.png)
+
+---
+
+## Implementación
+
+- En Agda se implementa de forma muy similar a la definición:
+
+![](sort-agda.png)
+
+<Notes>
+
+</Notes>
+
+---
+
+## Verificación
+
+- Se realiza en Agda, y se utilizan las funciones definidas con
+  anterioridad.
+
+![](proof1.png)
+<img src="proof2.png" style={{ width: '50%', marginTop: '1em' }} />
+
+<Notes>
+
+- Aquí es donde se hace uso de las capacidades de Agda como asistente
+  de demostraciones.
+
+</Notes>
+
+---
+
+## Verificación
+
+- La verificación y las demostraciones de lemas y teoremas necesarios
+  son extensas y bastante densas:
+
+<img src="full-proof.png" style={{ width: '60%', marginTop: '1em' }} />
+
+---
+
+## Verificación
+
+- Afortunadamente Agda verifica y asiste la creación de las
+  demostraciones:
+
+<video controls autoplay>
+  <source src="agda-assists.mp4" />
+</video>
+
+---
+
+## Conclusiones
+
+- **Agda** es una herramienta muy útil para crear software correcto, ya
+  que la especificación, implementación y verificación se llevan a
+  cabo en el mismo lenguaje.
+- La tarea de hacer la especificación es un proceso iterativo que
+  requiere múltiples y progresivos refinamientos.
+- Un programa verificado con estas herramientas sólo es tan correcto
+  como lo sea su especificación.
+
+---
+
+## Gracias
